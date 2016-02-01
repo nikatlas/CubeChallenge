@@ -1,0 +1,74 @@
+<html>
+<head>
+<title>Cube Challenge</title>
+<script type="text/javascript" src='math.js'></script>
+<script type="text/javascript">
+var canvas = null,ctx= null;
+var num = 10;
+var scale = 30;
+var points = [];
+var w,h;
+var a,b,c;
+a=b=c=0;
+window.onload = function(){
+	canvas = document.getElementById("canvas");
+	ctx = canvas.getContext("2d");
+	ctx.fillStyle = "#000";
+	w = parseInt(canvas.getAttribute('width'));
+	h = parseInt(canvas.getAttribute('height'));
+	ctx.fillRect(0,0,w,h);
+	createPoints();
+	setInterval(draw,13);
+}
+function draw(){
+	a += 0.005;
+	b += 0.003;
+	c += 0.004;
+	ctx.clearRect(0,0,w,h);
+	ctx.fillStyle = "#000";
+	ctx.fillRect(0,0,w,h);
+	for(var i=0;i<num*num*num;i++)
+		drawPoint(rotatePoint(points[i],a,b,c));
+}
+function drawPoint(p){
+	var N = math.matrix([[0,-1,0]]);
+	var B = math.subtract(p,math.multiply(math.dot(p._data[0],N._data[0]),N));
+
+	var size = 1;
+	//ctx.fillStyle = "#add8e6";
+	var op = 1 - p._data[0][1]/math.norm(p._data[0]);
+	ctx.fillStyle = 'rgba(173,216,230,'+op*op+')';
+	ctx.fillRect(w/2+B._data[0][0]-size,h/2+B._data[0][2]-size,size,size);	
+}
+function rotatePoint(p, a, b, c){
+	var Ra = math.matrix([  [ math.cos(a), math.sin(a), 0],
+							[-math.sin(a), math.cos(a), 0],
+							[      0,      0, 1] ]);
+	var Rb = math.matrix([  [ math.cos(b),      0,-math.sin(b)],
+							[      0,      1, 0],
+							[ math.sin(b),      0, math.cos(b)] ]);
+	var Rc = math.matrix([  [ math.cos(c), math.sin(c), 0],
+							[-math.sin(c), math.cos(c), 0],
+							[      0,      0, 1] ]);
+	var R  = math.multiply(Rc,math.multiply(Rb,Ra));
+	return math.multiply(p , R);
+}
+function Point(x,y,z,s){
+	return math.matrix([[x*s,y*s,z*s]]);
+}
+function createPoints(){
+	var h = num/2;
+	for(var x=-h;x<h;x++)
+		for(var y=-h;y<h;y++)
+			for(var z=-h;z<h;z++)
+				points.push(Point(x/2,y/2,z/2,scale));
+}
+</script>
+
+</head>
+<body style='background-color:black' align='center'>
+<canvas width='1280' height='720' id='canvas'></canvas>
+
+</body>
+
+</html>
